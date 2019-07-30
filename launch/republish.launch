@@ -1,0 +1,5 @@
+<launch>
+  <node name="republish1" pkg="image_transport" type="republish" args="compressed in:=/camera/color/image_raw raw out:=/image"/>
+  <node name="republish2" pkg="image_transport" type="republish" args="compressedDepth in:=/camera/aligned_depth_to_color/image_raw raw out:=/depth"/>
+
+</launch>

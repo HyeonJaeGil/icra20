@@ -1,0 +1,7 @@
+<launch>
+<!--Launch the icra20 node for making dir -->
+<node pkg="icra20" type="mkdir.py" name="mkdir" output="screen">
+  <param name="abs_folder" value="/home/hj/ICRA2020/testing"/>
+</node>
+
+</launch>

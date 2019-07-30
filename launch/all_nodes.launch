@@ -1,0 +1,10 @@
+<launch>
+  <node name="republish1" pkg="image_transport" type="republish" args="compressed in:=/camera/color/image_raw raw out:=/image"/>
+  <node name="republish2" pkg="image_transport" type="republish" args="compressedDepth in:=/camera/aligned_depth_to_color/image_raw raw out:=/depth"/>
+  <node name="laser2pc" pkg="icra20" type="laser2pc.py"/>
+  <node name="pc2_to_pclxyz" pkg="icra20" type="pc2_to_pclxyz"/>
+  <node name="pclxyz_to_save" pkg="icra20" type="pclxyz_to_save">
+    <param name="path" value="/home/hj/ICRA2020/hj" type="str" />
+  </node>
+
+</launch>

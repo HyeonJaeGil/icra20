@@ -1,0 +1,7 @@
+<launch>
+<!--Launch the icra20 node for laserscan to pointcloud -->
+<node pkg="icra20" type="laser2pc.py" name="laser2pc" output="screen">
+</node>
+
+</launch>
+

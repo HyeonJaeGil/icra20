@@ -1,0 +1,13 @@
+<launch>
+  <node pkg="urg_node" name="urg_node" type="urg_node" args="_ip_address:=192.168.0.10 __name:=node scan:=scan">
+    <!--<param name="ip_address" value="192.168.0.10" />
+    <param name="name" value="node" />
+    <param name="scan" value="scan" />-->
+  </node>
+
+
+
+  <include file="$(find realsense2_camera)/launch/rs_aligned_depth_test.launch" />
+  <!--<include file="$(find realsense2_camera)/launch/include/nodelet.launch.xml" />-->
+
+</launch>
