@@ -20,7 +20,7 @@ dataSaver::dataSaver()
   m_max_range_search = 0;
   saving_flag = true;
   //// For saving data
-  abs_path = "/home/hj/ICRA2020/190403";
+  abs_path = "/media/shapelim/SAMSUNG/icra2020/default";
   data_name = "sa0403_";
 
 }
@@ -44,10 +44,11 @@ dataSaver::dataSaver(std::string abs_folder)
   saving_flag = true;
   //// For saving data
   abs_path = abs_folder;
+  std::cout<<abs_path<<std::endl;
 
   data_name = "0000_";
 
-  std::string sub_directory[5] = {"/img", "/rp_img2csv", "/rp_raw", "/rp_intensity", "/depth2csv"};
+  std::string sub_directory[8] = {"/img", "/rp_img2csv", "/rp_raw", "/rp_intensity", "/depth2csv", "/h5", "/img+rp", "/concat"};
 
   const int dir_err = mkdir(abs_path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
   if (-1 == dir_err)
@@ -57,7 +58,7 @@ dataSaver::dataSaver(std::string abs_folder)
   }
 
   int if_error;
-  for(int i = 0 ; i < 5 ; i++)
+  for(int i = 0 ; i < 8 ; i++)
   {
     if_error = mkdir((abs_path+sub_directory[i]).c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if(if_error == -1)
@@ -104,6 +105,7 @@ void dataSaver::callback_saving_data(const icra20::synced_node::ConstPtr &msg)
    // std::cout<<"Receiving " <<msg->idx<<"th synced data!"<<std::endl;
 
 /*________________________________________________________________________________________________________________________________________*/
+
 ///Raw data part
    int scanQuantity =((msg->Raw.angle_max)-(msg->Raw.angle_min))/(msg->Raw.angle_increment)+1;
    Eigen::MatrixX3f eigenRaw = Eigen::MatrixX3f::Zero(1,3);
@@ -301,7 +303,9 @@ void dataSaver::callback_saving_data(const icra20::synced_node::ConstPtr &msg)
   cv_bridge::CvImagePtr cv_ptr;
   cv_ptr = cv_bridge::toCvCopy(msg->depth, sensor_msgs::image_encodings::TYPE_16UC1);
   double min, max;
-  cv::minMaxLoc(cv_ptr->image, &min, &max);
+//  cv::minMaxLoc(cv_ptr->image, &min, &max);
+  min = 0.0;
+  max = 10000.0;
   cv::Mat colorMap;
   cv::convertScaleAbs(cv_ptr->image, colorMap,255.0/(max-min),-255.0/(max-min)*min);
   cv::applyColorMap(colorMap, colorMap, 2);
@@ -321,17 +325,18 @@ void dataSaver::callback_saving_data(const icra20::synced_node::ConstPtr &msg)
        cv::Mat saving_rp_mat(640, 480,CV_32FC3, cv::Scalar(0,0,0));
 
        index = std::to_string(save_count);
+       std::string padded_index = std::string(4 - index.length(), '0') + index;
 
-       std::string img_path =abs_path + "/img/" + data_name + index + ".png";
+       std::string img_path =abs_path + "/img/" + padded_index + ".png";
        //std::string depth_path =abs_path + "/depth/" + data_name + index + ".png";
        cv::imwrite(img_path, imgUndistorted);
        //cv::imwrite(depth_path, depthUndistorted);
 
-       std::string rp_img2csv_path =abs_path + "/rp_img2csv/" + data_name + index + ".csv";
-       std::string rp_raw_path =abs_path + "/rp_raw/" + data_name + index + ".csv";
-       std::string rp_intensity_path =abs_path + "/rp_intensity/" + data_name + index + ".csv";
+       std::string rp_img2csv_path =abs_path + "/rp_img2csv/" + padded_index + ".csv";
+       std::string rp_raw_path =abs_path + "/rp_raw/" + padded_index + ".csv";
+       std::string rp_intensity_path =abs_path + "/rp_intensity/" + padded_index + ".csv";
        //std::string depth_img2csv_path =abs_path + "/depth_img2csv/" + data_name + index + ".csv";
-       std::string depth2csv_path =abs_path + "/depth2csv/" + data_name + index + ".csv";
+       std::string depth2csv_path =abs_path + "/depth2csv/" + padded_index + ".csv";
 
        // std::cout<<"[Debug]: "<<img_path<<std::endl;
        // std::cout<<"[Debug]: "<<rp_img2csv_path<<std::endl;
