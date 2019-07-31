@@ -10,10 +10,21 @@ Version: 1.0.0 (documentation 0.1.0)
 * Will be updated
 * 
 
-### How to use
+### How to save data
 0. roscore
 1. rosbag play $target_bag_file (or roslaunch icra20 all_sensors.launch)
 2. roslaunch icra20 all_nodes.launch
+      This makes dir + saves all data.
+      make sure to change launch file parameter.
+
+### How to make h5 + visualize it
+1. python3 generate_h5.py //should change target_path
+2. python3 analyze_h5.py
+   +)functions in analyze_h5.py
+      save_projected_img : save img file with rp pcl projected to 'img+rp' directory.
+      visualize_depth_and_projected_img : concat 'img file with rp pcl projected' and 'colored depth' + visualize it.(Fast)
+      save_concat_img : concat 'img file with rp pcl projected' and 'colored depth' + save it to 'concat' directory.
+
 
 ### Scripts descriptions
 - script/laser2pc.py
