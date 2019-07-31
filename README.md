@@ -12,9 +12,9 @@ Version: 1.0.0 (documentation 0.1.0)
 
 ### How to save data
 0. roscore
-1. roslaunch icra20 all_sensors.launch)
+1. roslaunch icra20 all_sensors.launch
 2. rosrun rqt_reconfigure rqt_reconfigure , lowering 6 param
-3. rosbag record /scan /camera/aligned_depth_to_color/image_raw/compressedDepth /camera/color/image_raw/compressed /camera/depth/color/points
+3. rosbag record /scan /camera/aligned_depth_to_color/image_raw/compressedDepth /camera/color/image_raw/compressed
 4. roslaunch icra20 all_nodes.launch
       This makes dir + saves all data.
       make sure to change launch file parameter.
