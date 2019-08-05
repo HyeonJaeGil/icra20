@@ -1,0 +1,10 @@
+<launch>
+  <param name="/camera/aligned_depth_to_color/image_raw/compressed/png_level" value="6"/>
+  <param name="/camera/aligned_depth_to_color/image_raw/compressedDepth/png_level" value="6"/>
+  <param name="/camera/aligned_depth_to_color/image_raw/theora/keyframe_frequency" value="1"/>
+
+  <param name="/camera/color/image_raw/compressed/png_level" value="6"/>
+  <param name="/camera/color/image_raw/compressedDepth/png_level" value="6"/>
+  <param name="/camera/color/image_raw/theora/keyframe_frequency" value="1"/>
+
+</launch>
