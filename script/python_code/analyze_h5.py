@@ -214,6 +214,37 @@ def save_h5f2RGB(h5_path, file, save_path):
     print(save_file_path)
     cv2.imwrite(save_file_path, im_result)
 
+def save_new_h5(h5_path, file, save_path):
+    '''
+     :param h5_path, file, save_path:
+     :return: void
+     save depth_filled colorized depth as .png
+     '''
+    h5f = h5py.File(h5_path, "r")
+    rgb_data = np.array(h5f['rgb'], dtype=np.uint8)
+    # Originally, shape of rgb_data: (3, 480, 640)
+    #print("Shape of rgb: ", rgb_data.shape)
+    rgb = np.transpose(rgb_data, (1, 2, 0))
+    bgr = rgb[:, :, ::-1]
+    bgr_input = bgr / 255
+
+    depth = np.array(h5f['depth'], dtype=np.float32)
+    #print("Shape of depth: ", depth.shape)
+
+    new_depth = fill_depth_colorization(bgr_input, depth, 1)
+    new_depth = new_depth * 1000
+    new_depth = new_depth.astype(int)
+    max_depth = np.amax(new_depth)
+    min_depth = np.amin(new_depth)
+    colored_depth = np.array(colored_depthmap(new_depth, min_depth, max_depth), dtype=np.uint8)
+    colored_depth = colored_depth[:, :, ::-1]
+
+    save_file_path = os.path.join(save_path, file[:-2]) + 'png'
+    print(save_file_path)
+    cv2.imwrite(save_file_path, colored_depth)
+
+    np.savetxt(os.path.join(save_path, file[:-2]) + 'csv', new_depth, delimiter=',')
+
 
 def save_concat_img(h5_path, img_path, file, save_path):
     '''
@@ -235,7 +266,7 @@ def save_concat_img(h5_path, img_path, file, save_path):
     print(projected_img.shape)
 
     im_result = cv2.hconcat([projected_img, colored_depth])
-    save_file_path = os.path.join(save_path, file[:-2]) + 'png'
+    save_file_path = os.path.join(save_path, file[:-3]) + '.png'
     print(save_file_path)
     cv2.imwrite(save_file_path, im_result)
 
@@ -251,11 +282,15 @@ def save_projected_img(h5_path, file, save_path):
     # Originally, shape of rgb_data: (3, 480, 640)
     rgb = np.transpose(rgb_data, (1, 2, 0))
     bgr = rgb[:, :, ::-1]
+    bgr = np.ascontiguousarray(bgr, dtype=np.uint8) #Don't know why i should put this.
 
     '''Used for finding min and max'''
     depth = np.array(h5f['depth'], dtype=np.float32)
     max_depth = np.amax(depth)
     min_depth = np.amin(depth)
+
+    max_depth = 5
+    min_depth = 0
 
     projected = np.array(h5f['scan_projected'], dtype=np.float32)
     # max_depth = np.amax(projected)
@@ -273,8 +308,15 @@ def save_projected_img(h5_path, file, save_path):
     #bgr = np.asarray(bgr)
 
     save_file_path = os.path.join(save_path, file[:-2]) + 'png'
-    print(save_file_path)
+    #print(save_file_path)
     cv2.imwrite(save_file_path, bgr)
+
+
+def show_raw_data_shape(h5_path):
+    h5f = h5py.File(h5_path, "r")
+    raw = np.array(h5f['scan_raw'], dtype=np.float32)
+    print(h5_path, raw.shape)
+
 
 
 def show_keys_of_h5(h5_path):
@@ -293,43 +335,61 @@ def calculate_nonzero_mean_std(file_list):
 
 if __name__ == "__main__":
 
-    # h5_file_path = '/media/hj/SAMSUNG/nyudepthv2/train/cafe_0001c'
-    #h5_file_path = '/home/hj/ICRA2020/190403/h5'
-    h5_file_path = '/media/hj/SAMSUNG/nyudepthv2/val/official'
+    ## variable to change! ##
+    dir_name = 'cafeteria_n0'
 
-    img_path = '/home/hj/ICRA2020/190403/img+rp'
+    # #for shapelim laptop
+    # h5_file_path = '/media/shapelim/SAMSUNG/icra2020/'+ dir_name + '/h5'
+    # projected_img_save_path = '/media/shapelim/SAMSUNG/icra2020/'+ dir_name + '/img+rp'
+    # concat_save_path = '/media/shapelim/SAMSUNG/icra2020/'+ dir_name +'/concat'
 
-    final_save_path = '/home/hj/ICRA2020/debug/h5'
-    projected_img_save_path = '/home/hj/ICRA2020/190403/img+rp'
+    # #for hj laptop - external HDD
+    # h5_file_path = '/media/hj/SAMSUNG/icra2020/'+ dir_name + '/h5'
+    # projected_img_save_path = '/media/hj/SAMSUNG/icra2020/'+ dir_name + '/img+rp'
+    # concat_save_path = '/media/hj/SAMSUNG/icra2020/'+ dir_name +'/concat'
+
+    #for hj laptop - external SSD
+    h5_file_path = '/media/hj/Samsung_T5/icra2020/'+ dir_name + '/h5'
+    projected_img_save_path = '/media/hj/Samsung_T5/icra2020/'+ dir_name + '/img+rp'
+    concat_save_path = '/media/hj/Samsung_T5/icra2020/'+ dir_name +'/concat'
+
+    #for hj laptop - ssd
+    # h5_file_path = '/home/hj/icra2020/'+ dir_name + '/h5'
+    # projected_img_save_path = '/home/hj/icra2020/'+ dir_name + '/img+rp'
+    # concat_save_path = '/home/hj/icra2020/'+ dir_name +'/concat'
+
+    save_path = '/media/hj/Samsung_T5/icra2020/' + dir_name + '/new_depth2csv'
+
+
+    val_h5_file_path = '/media/hj/Samsung_T5/url_proto/val'
 
     fList = os.listdir(h5_file_path)
-    # new_list = sorted(fList, key=lambda x: int(x[7:-3]))
-    # new_list = sorted(fList, key=lambda x: int(x[:-3]))
-    new_list = fList
+    new_list = sorted(fList, key=lambda x: int(x[:-3]))
     print(new_list)
 
     count = 0
 
     for csv_file in new_list:
 
-        if csv_file == '00028.h5':
-            continue
-        print(csv_file)
-        print(os.path.join(h5_file_path, csv_file))
+        # print(csv_file)
+        # print(os.path.join(h5_file_path, csv_file))
+
+        # save_projected_img(os.path.join(h5_file_path, csv_file), csv_file, projected_img_save_path)
+        #visualize_depth_and_projected_img(projected_img_save_path + '/' + csv_file[:-3] + '.png', os.path.join(h5_file_path, csv_file))
+        # save_concat_img(os.path.join(h5_file_path, csv_file), projected_img_save_path + '/' + csv_file[:-3] + '.png', csv_file, concat_save_path)
 
 
-
-        #show_keys_of_h5(os.path.join(h5_file_path, csv_file))
+        # show_keys_of_h5(os.path.join(h5_file_path, csv_file))
         # save_h5f2RGB(os.path.join(h5_file_path, csv_file), csv_file, save_path)
-        #save_projected_img(os.path.join(h5_file_path, csv_file), csv_file, projected_img_save_path)
+        # if csv_file in ['0010.h5', '0066.h5', '0101.h5', '0114.h5', '0144.h5', '0192.h5', '0232.h5', '0257.h5', '0309.h5', '0355.h5', '0382.h5']:
+        #     save_new_h5(os.path.join(h5_file_path, csv_file), csv_file, save_path)
+
         #visualize_h5f2(os.path.join(h5_file_path, csv_file))
-        visualize_h5f_nyu(os.path.join(h5_file_path, csv_file))
-        # visualize_depth_and_projected_img(img_path + '/' + csv_file[:-3] + '.png', os.path.join(h5_file_path, csv_file))
-        # save_concat_img(os.path.join(h5_file_path, csv_file), img_path + '/' + csv_file[:-3] + '.png', csv_file, final_save_path)
+        #visualize_h5f_nyu(os.path.join(h5_file_path, csv_file))
+
+        # show_raw_data_shape(os.path.join(val_h5_file_path, csv_file))
+
         count += 1
-
-
 
         # if count == 2:
         #     break
-
