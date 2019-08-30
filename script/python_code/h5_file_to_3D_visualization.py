@@ -36,6 +36,12 @@ def visualize_ply(ply_path):
 
 if __name__ == "__main__":
 
+    //Inside a directory, there should exist 4 sub_directory: /h5, /img, /depth_img, /ply.
+    //1. get img and depth_img from h5 (get_bgr_and_depth func)
+    //2. save those img and depth_img to appropriate format (save_img_from_h5 func)
+    //3. make ply file to /ply folder (generate_pointcloud func)
+    //4. visualize it one by one.
+    
     rel_path = '/media/hj/Samsung_T5/pcl/unknown_e9_4'
     h5_path = rel_path + '/h5'
     fList = os.listdir(h5_path)
